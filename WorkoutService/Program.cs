@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using WorkoutService.Domain.Entities;
 using WorkoutService.Domain.Interfaces;
+using WorkoutService.Features;
 using WorkoutService.Infrastructure;
 using WorkoutService.Infrastructure.Data;
 using WorkoutService.Infrastructure.UnitOfWork;
@@ -82,7 +83,7 @@ public class Program
             var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
             typeAdapterConfig.Scan(Assembly.GetExecutingAssembly());
             builder.Services.AddSingleton(typeAdapterConfig);
-            //builder.Services.AddScoped<IMapper, ServiceMapper>(); // Added back
+            builder.Services.AddScoped<IMapper, ServiceMapper>(); // Added back
 
             // Add Authentication (validates JWT tokens)
             builder.Services.AddAuthentication(options =>
@@ -181,7 +182,7 @@ public class Program
             app.UseAuthorization();
 
             // 3. Map all endpoints from our Feature folders
-            //app.MapAllEndpoints(); // Added back
+            app.MapAllEndpoints(); // Added back
 
             // 4. Run the application
             await app.RunAsync(); // Changed to async
