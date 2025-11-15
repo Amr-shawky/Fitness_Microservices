@@ -8,8 +8,10 @@ namespace WorkoutService.Features.Exercises.CreateExercise
     public class CreateExerciseHandler : IRequestHandler<CreateExerciseCommand, ExerciseVm>
     {
         private readonly IUnitOfWork _unitOfWork;
-        public CreateExerciseHandler(IUnitOfWork unitOfWork)
+        private readonly IBaseRepository<Exercise> _exerciseRepository;
+        public CreateExerciseHandler(IUnitOfWork unitOfWork, IBaseRepository<Exercise> exerciseRepository)
         {
+            _exerciseRepository = exerciseRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -17,7 +19,7 @@ namespace WorkoutService.Features.Exercises.CreateExercise
         {
             // TODO: Add mapping
             var exercise = new Exercise { Name = request.Dto.Name, Description = request.Dto.Description };
-            await _unitOfWork.Exercises.AddAsync(exercise);
+            await _exerciseRepository.AddAsync(exercise);
             await _unitOfWork.CompleteAsync();
             return new ExerciseVm(exercise.Id, exercise.Name, exercise.Description);
         }

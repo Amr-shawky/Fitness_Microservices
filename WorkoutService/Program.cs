@@ -83,7 +83,7 @@ public class Program
             var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
             typeAdapterConfig.Scan(Assembly.GetExecutingAssembly());
             builder.Services.AddSingleton(typeAdapterConfig);
-            builder.Services.AddScoped<IMapper, ServiceMapper>(); // Added back
+            //builder.Services.AddScoped<IMapper, ServiceMapper>(); // Added back
 
             // Add Authentication (validates JWT tokens)
             builder.Services.AddAuthentication(options =>

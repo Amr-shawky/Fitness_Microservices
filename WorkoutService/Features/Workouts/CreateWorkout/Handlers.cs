@@ -8,16 +8,18 @@ namespace WorkoutService.Features.Workouts.CreateWorkout
     public class CreateWorkoutHandler : IRequestHandler<CreateWorkoutCommand, WorkoutVm>
     {
         private readonly IUnitOfWork _unitOfWork;
-        public CreateWorkoutHandler(IUnitOfWork unitOfWork)
+        private readonly IBaseRepository<Workout> _workoutRepository;
+        public CreateWorkoutHandler(IUnitOfWork unitOfWork , IBaseRepository<Workout> workoutRepository)
         {
             _unitOfWork = unitOfWork;
+            _workoutRepository = workoutRepository;
         }
 
         public async Task<WorkoutVm> Handle(CreateWorkoutCommand request, CancellationToken cancellationToken)
         {
             // TODO: Add mapping
             var workout = new Workout { Name = request.Dto.Name, Description = request.Dto.Description };
-            await _unitOfWork.Workouts.AddAsync(workout);
+            await _workoutRepository.AddAsync(workout);
             await _unitOfWork.CompleteAsync();
             return new WorkoutVm(workout.Id, workout.Name, workout.Description);
         }
