@@ -1,0 +1,128 @@
+{
+  "Routes": [
+    // Authentication Service Routes
+    {
+      "DownstreamPathTemplate": "/api/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "authenticationservice",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/auth/{everything}",
+      "UpstreamHttpMethod": [ "POST", "GET" ]
+    },
+    // User Profile Service Routes
+    {
+      "DownstreamPathTemplate": "/api/profile/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userprofileservice",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/profile/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    // Workout Service Routes
+    {
+      "DownstreamPathTemplate": "/api/workouts/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "workoutservice",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/workouts/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    // Nutrition Service Routes
+    {
+      "DownstreamPathTemplate": "/api/nutrition/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "nutritionservice",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/nutrition/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    // Progress Tracking Service Routes
+    {
+      "DownstreamPathTemplate": "/api/progress/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "progresstrackingservice",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/progress/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    // Fitness Calculation Service Routes
+    {
+      "DownstreamPathTemplate": "/api/fitness-calculator/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "fitnesscalculationservice",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/fitness-calculator/{everything}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    // Smart Coach Service Routes
+    {
+      "DownstreamPathTemplate": "/api/smart-coach/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "smartcoachservice",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/smart-coach/{everything}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:5000",
+    "RateLimitOptions": {
+      "EnableRateLimiting": true,
+      "Period": "1s",
+      "PeriodTimespan": 1,
+      "Limit": 5
+    }
+  }
+}
