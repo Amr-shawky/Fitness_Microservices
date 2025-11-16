@@ -73,27 +73,63 @@ The following API endpoints have been implemented in the `WorkoutService`:
 
 ## 4. Current Folder Structure
 
-The high-level folder structure for the `WorkoutService` is as follows:
+The detailed folder structure for the `WorkoutService` is as follows:
 
 ```
 WorkoutService/
 ├── Domain/
-│   ├── Entities/         # Contains the database entity classes (e.g., Workout, Exercise).
-│   └── Interfaces/       # Contains repository interfaces (e.g., IBaseRepository).
+│   ├── Entities/
+│   │   ├── BaseEntity.cs
+│   │   ├── Exercise.cs
+│   │   ├── Workout.cs
+│   │   ├── WorkoutExercise.cs
+│   │   ├── WorkoutPlan.cs
+│   │   ├── WorkoutSession.cs
+│   │   └── WorkoutSessionExercise.cs
+│   └── Interfaces/
+│       ├── IBaseRepository.cs
+│       └── IUnitOfWork.cs
 ├── Features/
-│   ├── Shared/           # Shared response and utility classes.
+│   ├── Shared/
+│   │   ├── EndpointResponse.cs
+│   │   ├── PaginatedResult.cs
+│   │   └── RequestResponse.cs
 │   └── Workouts/
 │       ├── GetAllWorkouts/
+│       │   ├── ViewModels/
+│       │   │   └── WorkoutViewModel.cs
+│       │   ├── Endpoints.cs
+│       │   ├── Handlers.cs
+│       │   └── Queries.cs
 │       ├── GetWorkoutDetails/
-│       └── ...           # Other feature folders.
+│       │   ├── Endpoints.cs
+│       │   ├── Handlers.cs
+│       │   ├── Queries.cs
+│       │   └── ViewModels.cs
+│       ├── GetWorkoutsByCategory/
+│       │   ├── Endpoints.cs
+│       │   ├── Handlers.cs
+│       │   └── Queries.cs
+│       └── StartWorkoutSession/
+│           ├── Commands.cs
+│           ├── Dtos.cs
+│           ├── Endpoints.cs
+│           ├── Handlers.cs
+│           └── ViewModels.cs
 ├── Infrastructure/
-│   ├── Data/             # Contains the DbContext and database seeder.
-│   └── Repositories/     # Concrete repository implementations.
-├── Migrations/           # Entity Framework Core database migrations.
-├── Properties/           # Project configuration (e.g., launchSettings.json).
-├── EndpointExtensions.cs # Extension method to automatically register all endpoints.
-├── Program.cs            # The main application entry point.
-└── appsettings.json      # Application configuration.
+│   ├── Data/
+│   │   ├── ApplicationDbContext.cs
+│   │   └── DatabaseSeeder.cs
+│   └── Repositories/
+│       └── BaseRepository.cs
+├── Migrations/
+├── Properties/
+├── EndpointExtensions.cs
+├── Program.cs
+├── README.md
+├── WorkoutService.csproj
+├── appsettings.Development.json
+└── appsettings.json
 ```
 
 ## 5. Endpoint Implementation Strategy
