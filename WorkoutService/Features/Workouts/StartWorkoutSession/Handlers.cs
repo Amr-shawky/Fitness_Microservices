@@ -25,7 +25,7 @@ namespace WorkoutService.Features.Workouts.StartWorkoutSession
         public async Task<RequestResponse<WorkoutSessionViewModel>> Handle(StartWorkoutSessionCommand request, CancellationToken cancellationToken)
         {
             var workout = await _workoutRepository.GetAll()
-                .Include(w => w.Exercises)
+                .Include(w => w.WorkoutExercises)
                 .FirstOrDefaultAsync(w => w.Id == request.WorkoutId, cancellationToken);
 
             if (workout == null)
@@ -43,7 +43,7 @@ namespace WorkoutService.Features.Workouts.StartWorkoutSession
                 Difficulty = request.Dto.Difficulty
             };
 
-            var sessionExercises = workout.Exercises.Select(e => new WorkoutSessionExercise
+            var sessionExercises = workout.WorkoutExercises.Select(e => new WorkoutSessionExercise
             {
                 ExerciseId = e.Id,
                 Status = "Pending",

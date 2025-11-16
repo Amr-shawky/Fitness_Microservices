@@ -2,9 +2,8 @@ using System;
 
 namespace WorkoutService.Domain.Entities
 {
-    public class WorkoutSessionExercise
+    public class WorkoutSessionExercise : BaseEntity
     {
-        public Guid Id { get; set; }
         public Guid WorkoutSessionId { get; set; }
         public WorkoutSession WorkoutSession { get; set; }
         public int ExerciseId { get; set; }

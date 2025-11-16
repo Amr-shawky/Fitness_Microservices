@@ -20,7 +20,7 @@ namespace WorkoutService.Features.Workouts.GetWorkoutDetails
         public async Task<RequestResponse<WorkoutDetailsViewModel>> Handle(GetWorkoutDetailsQuery request, CancellationToken cancellationToken)
         {
             var workout = await _workoutRepository.GetAll()
-                .Include(w => w.Exercises)
+                .Include(w => w.WorkoutExercises)
                 .FirstOrDefaultAsync(w => w.Id == request.Id, cancellationToken);
 
             if (workout == null)

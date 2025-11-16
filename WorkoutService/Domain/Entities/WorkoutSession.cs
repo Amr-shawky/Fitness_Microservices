@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 namespace WorkoutService.Domain.Entities
 {
-    public class WorkoutSession
+    public class WorkoutSession : BaseEntity
     {
-        public Guid Id { get; set; }
         public Guid UserId { get; set; } // Assuming user ID is a Guid
         public int WorkoutId { get; set; }
         public Workout Workout { get; set; }

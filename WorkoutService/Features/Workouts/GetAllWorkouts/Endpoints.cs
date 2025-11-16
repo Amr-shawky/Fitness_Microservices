@@ -22,16 +22,16 @@ namespace WorkoutService.Features.Workouts.GetAllWorkouts
 
                 if (!result.IsSuccess)
                 {
-                    return Results.BadRequest(EndpointResponse<object>.ErrorResponse(
+                    return EndpointResponse<object>.ErrorResponse(
                         message: "Failed to fetch workouts",
                         errors: new List<string> { result.Message }
-                    ));
+                    );
                 }
 
-                return Results.Ok(EndpointResponse<object>.SuccessResponse(
+                return EndpointResponse<object>.SuccessResponse(
                     data: result.Data,
                     message: "Workouts fetched successfully"
-                ));
+                );
             });
         }
     }

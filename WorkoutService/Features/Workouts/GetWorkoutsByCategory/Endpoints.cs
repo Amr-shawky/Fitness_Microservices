@@ -21,25 +21,30 @@ namespace WorkoutService.Features.Workouts.GetWorkoutsByCategory
 
                 if (!result.IsSuccess)
                 {
-                    return Results.BadRequest(new EndpointResponse<object>(
-                        false,
-                        result.Message,
-                        null,
-                        new List<string> { result.Message },
-                        400,
-                        DateTime.UtcNow
-                    ));
+                    return Results.BadRequest(
+                        new EndpointResponse<object>(
+                            null,
+                            result.Message,
+                            false,
+                            400,
+                            new List<string> { result.Message },
+                            DateTime.UtcNow
+                        )
+                    );
                 }
 
-                return Results.Ok(new EndpointResponse<PaginatedResult<WorkoutViewModel>>(
-                    true,
-                    result.Message,
-                    result.Data,
-                    null,
-                    200,
-                    DateTime.UtcNow
-                ));
+                return Results.Ok(
+                    new EndpointResponse<PaginatedResult<WorkoutViewModel>>(
+                        result.Data,
+                        result.Message,
+                        true,
+                        200,
+                        null,
+                        DateTime.UtcNow
+                    )
+                );
             });
+
         }
     }
 }
