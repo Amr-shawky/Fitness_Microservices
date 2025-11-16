@@ -3,19 +3,16 @@
     public record RequestResponse<T>(
             T? Data,
             string Message = "",
-            string MessageAr = "",
             bool IsSuccess = true
         )
     {
         public static RequestResponse<T> Success(
             T data,
-            string message = "Operation completed successfully",
-            string messageAr = "العملية تمت بنجاح"
-        ) => new(data, message, messageAr, true);
+            string message = "Operation completed successfully"
+        ) => new(data, message, true);
 
         public static RequestResponse<T> Fail(
-            string message = "Operation failed",
-            string messageAr = "فشل العملية"
-        ) => new(default!, message, messageAr, false);
+            string message = "Operation failed"
+        ) => new(default!, message, false);
     }
 }
