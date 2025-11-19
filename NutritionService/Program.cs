@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NutritionService.Domain.Interfaces;
+using NutritionService.Features.Meals.GetMealDetails;
 using NutritionService.Features.Meals.GetMealRecommendations;
 using NutritionService.Infrastructure.Data;
 using NutritionService.Infrastructure.Repositorys;
@@ -48,6 +49,7 @@ namespace NutritionService
 
 
             app.MapGetMealRecommendationsEndpoint();
+            app.MapGetMealDetailsEndpoint();
 
          
             #endregion
