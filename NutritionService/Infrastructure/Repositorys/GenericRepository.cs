@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NutritionService.Domain.Interfaces;
 using NutritionService.Domain.Models;
 using NutritionService.Infrastructure.Data;
+using System.Linq.Expressions;
 
 namespace NutritionService.Infrastructure.Repositorys
 {
@@ -77,5 +78,29 @@ namespace NutritionService.Infrastructure.Repositorys
             entity.UpdatedAt = DateTime.Now;
             _context.Set<TEntity>().Update(entity);
         }
+
+        public async Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> criteria, params Expression<Func<TEntity, object>>[] includes)
+        {
+            IQueryable<TEntity> query = _dbSet;
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.FirstOrDefaultAsync(criteria);
+        }
+
+
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? criteria = null)
+        {
+            if (criteria == null)
+            {
+                return await _dbSet.CountAsync();
+            }
+
+            return await _dbSet.CountAsync(criteria);
+        }
+
     }
 }

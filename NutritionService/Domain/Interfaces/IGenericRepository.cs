@@ -1,4 +1,5 @@
 ﻿using NutritionService.Domain.Models;
+using System.Linq.Expressions;
 
 namespace NutritionService.Domain.Interfaces
 {
@@ -10,6 +11,8 @@ namespace NutritionService.Domain.Interfaces
         public void SaveInclude(TEntity entity, params string[] includedProperties);
         IQueryable<TEntity> GetAllAsync(bool trackChanges = false);
         Task<TEntity?> GetByIdAsync(int id);
+        Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> criteria, params Expression<Func<TEntity, object>>[] includes);
+        Task<int> CountAsync(Expression<Func<TEntity, bool>>? criteria = null);
 
 
     }
