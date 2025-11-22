@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using NutritionService.Features.Meals.GetMealDetails.DTOs;
 using NutritionService.Features.Shared;
 using NutritionService.Infrastructure.Data;
@@ -10,16 +11,30 @@ namespace NutritionService.Features.Meals.GetMealDetails
           : IRequestHandler<GetMealDetailsQuery, EndpointResponse<MealDetailsDto>>
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMemoryCache _cache;
 
-        public GetMealDetailsHandler(ApplicationDbContext context)
+        public GetMealDetailsHandler(ApplicationDbContext context, IMemoryCache cache)
         {
             _context = context;
+            _cache = cache;
         }
 
         public async Task<EndpointResponse<MealDetailsDto>> Handle(
             GetMealDetailsQuery request,
             CancellationToken cancellationToken)
         {
+            string cacheKey = $"meal_details_{request.Id}";
+
+            // ✔ 1) Try Get From Cache
+            if (_cache.TryGetValue(cacheKey, out MealDetailsDto cachedMeal))
+            {
+                return EndpointResponse<MealDetailsDto>.SuccessResponse(
+                    cachedMeal,
+                    "Meal details fetched successfully (from cache)"
+                );
+            }
+
+            // ✔ 2) Fetch From DB
             var meal = await _context.meals
                 .Where(m => m.Id == request.Id && !m.IsDeleted)
                 .Select(m => new MealDetailsDto
@@ -41,8 +56,9 @@ namespace NutritionService.Features.Meals.GetMealDetails
                         Carbs = m.NutritionFacts.Carbs,
                         Fats = m.NutritionFacts.Fats,
                         Fiber = m.NutritionFacts.Fiber,
-                        Sugar = 5 
+                        Sugar = 5
                     },
+
                     Ingredients = m.MealIngredients
                         .Select(i => new IngredientDto
                         {
@@ -82,10 +98,18 @@ namespace NutritionService.Features.Meals.GetMealDetails
                 return EndpointResponse<MealDetailsDto>.NotFoundResponse("Meal not found");
             }
 
+            // ✔ 3) Set Cache For 10 Minutes
+            var cacheOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+
+            _cache.Set(cacheKey, meal, cacheOptions);
+
             return EndpointResponse<MealDetailsDto>.SuccessResponse(
                 meal,
                 "Meal details fetched successfully"
-                );
+            );
         }
     }
 }
