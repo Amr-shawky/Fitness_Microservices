@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProgressTrackingService", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartCoachService", "SmartCoachService\SmartCoachService.csproj", "{EE5EE9A5-BFF7-4507-B993-86517A5A2E8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserProfileService", "UserProfileService\UserProfileService.csproj", "{BDB8EDEF-C72B-433D-A93B-F3C8CBF5F751}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessAPIGateway", "FitnessAPIGateway\FitnessAPIGateway.csproj", "{F05E85FF-A822-48D3-9A07-A12988BB99F6}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{81DDED9D-158B-E303-5F62-77A2896D2A5A}"
@@ -51,10 +49,6 @@ Global
 		{EE5EE9A5-BFF7-4507-B993-86517A5A2E8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE5EE9A5-BFF7-4507-B993-86517A5A2E8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE5EE9A5-BFF7-4507-B993-86517A5A2E8E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BDB8EDEF-C72B-433D-A93B-F3C8CBF5F751}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BDB8EDEF-C72B-433D-A93B-F3C8CBF5F751}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BDB8EDEF-C72B-433D-A93B-F3C8CBF5F751}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BDB8EDEF-C72B-433D-A93B-F3C8CBF5F751}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F05E85FF-A822-48D3-9A07-A12988BB99F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F05E85FF-A822-48D3-9A07-A12988BB99F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F05E85FF-A822-48D3-9A07-A12988BB99F6}.Release|Any CPU.ActiveCfg = Release|Any CPU

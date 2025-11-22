@@ -13,7 +13,15 @@ namespace NutritionService
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    builder => builder
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .SetIsOriginAllowed(origin => true) // allow any origin
+                        .AllowCredentials());
+            });
             #region services to the container.
             builder.Services.AddAuthorization();
 
@@ -39,7 +47,7 @@ namespace NutritionService
             }
 
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowAll");
             app.UseAuthorization();
 
             var summaries = new[]

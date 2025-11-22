@@ -137,6 +137,16 @@ namespace AuthenticationService
                 options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
             });
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    builder => builder
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .SetIsOriginAllowed(origin => true) // allow any origin
+                        .AllowCredentials());
+            });
+
             // DI
             builder.Services.AddScoped<IImageHelper, ImageHelper>();
             builder.Services.AddScoped<UpdateUserProfileOrchestrator>();
@@ -184,6 +194,7 @@ namespace AuthenticationService
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("AllowAll");
             app.UseMiddleware<Middlewares.GlobalExceptionMiddleware>();
             app.UseAuthentication();
             app.UseAuthorization();

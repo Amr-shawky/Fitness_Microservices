@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
@@ -9,11 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add Ocelot configuration
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
-// Add authentication services
-var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-if (string.IsNullOrEmpty(jwtKey))
+// ---------------------------------------------------------
+
+var jwtKey = builder.Configuration["Jwt:Key"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
 {
-    throw new InvalidOperationException("JWT_SECRET_KEY environment variable is not set.");
+    throw new InvalidOperationException("JWT settings (Key, Issuer, or Audience) are missing in appsettings.json");
 }
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -25,8 +29,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+
+            // استخدام القيم من ملف الإعدادات
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });

@@ -55,7 +55,7 @@ public class Program
                     options.EnableDetailedErrors(true);
                 }
             });
-            // End DBContext setup
+
             // Register Unit of Work
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -76,14 +76,25 @@ public class Program
                 entityTypes.Count,
                 string.Join(", ", entityTypes.Select(t => t.Name)));
 
-            // Add MediatR for CQRS (using simpler registration from your file)
+            // Add MediatR
             builder.Services.AddMediatR(typeof(Program).Assembly);
 
-            // Add Mapster for object mapping
+            // Add Mapster
             var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
             typeAdapterConfig.Scan(Assembly.GetExecutingAssembly());
             builder.Services.AddSingleton(typeAdapterConfig);
-            //builder.Services.AddScoped<IMapper, ServiceMapper>(); // Added back
+
+            // ---------------------------------------------------------
+            // ✅ 1. إضافة خدمة الـ CORS (مهم جداً عشان المتصفح)
+            // ---------------------------------------------------------
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    b => b.AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .SetIsOriginAllowed(origin => true) // allow any origin
+                    .AllowCredentials());
+            });
 
             // Add Authentication (validates JWT tokens)
             builder.Services.AddAuthentication(options =>
@@ -141,7 +152,7 @@ public class Program
 
             // 2. Configure the HTTP request pipeline
 
-            // --- NEW: Database Migration and Seeding (like TechZone) ---
+            // --- Database Migration and Seeding ---
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -156,7 +167,7 @@ public class Program
 
                     // Seed the database
                     Log.Information("🌱 Starting database seeding...");
-                    await DatabaseSeeder.SeedAsync(services); // Call our new seeder
+                    await DatabaseSeeder.SeedAsync(services);
                     Log.Information("🌱 Database seeding completed successfully.");
                 }
                 catch (Exception ex)
@@ -164,7 +175,8 @@ public class Program
                     Log.Error(ex, "❌ An error occurred while migrating or seeding the database.");
                     if (app.Environment.IsDevelopment())
                     {
-                        throw; // Throw in dev to see the error
+                        // In Docker, sometimes it's better NOT to throw here to keep the container alive for inspection
+                        throw;
                     }
                 }
             }
@@ -178,14 +190,20 @@ public class Program
             }
 
             app.UseHttpsRedirection();
+
+            // ---------------------------------------------------------
+            // ✅ 2. تفعيل الـ CORS (لازم يكون قبل الـ Authentication)
+            // ---------------------------------------------------------
+            app.UseCors("AllowAll");
+
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // 3. Map all endpoints from our Feature folders
-            app.MapAllEndpoints(); // Added back
+            // 3. Map all endpoints
+            app.MapAllEndpoints();
 
             // 4. Run the application
-            await app.RunAsync(); // Changed to async
+            await app.RunAsync();
         }
         catch (Exception ex)
         {

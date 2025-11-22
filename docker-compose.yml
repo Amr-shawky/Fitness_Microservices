@@ -1,6 +1,100 @@
+﻿version: '3.4'
+
 services:
+  # ==========================================
+  # 1. The Shared SQL Server Container
+  # ==========================================
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: fitness_sql_server
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=MyComplexP@ssw0rd2025
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  # ==========================================
+  # 2. Workout Service (Port 8080)
+  # ==========================================
   workoutservice:
     image: ${DOCKER_REGISTRY-}workoutservice
     build:
       context: .
       dockerfile: WorkoutService/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - sqlserver
+
+  # ==========================================
+  # 3. Nutrition Service (Port 8082)
+  # ==========================================
+  nutritionservice:
+    image: ${DOCKER_REGISTRY-}nutritionservice
+    build:
+      context: .
+      dockerfile: NutritionService/Dockerfile
+    ports:
+      - "8082:8080"
+    depends_on:
+      - sqlserver
+
+  # ==========================================
+  # 4. Fitness Calculation Service (Port 8084)
+  # ==========================================
+  fitnesscalculationservice:
+    image: ${DOCKER_REGISTRY-}fitnesscalculationservice
+    build:
+      context: .
+      dockerfile: FitnessCalculationService/Dockerfile
+    ports:
+      - "8084:8080"
+    depends_on:
+      - sqlserver
+
+  # ==========================================
+  # 5. Progress Tracking Service (Port 8086)
+  # ==========================================
+  progresstrackingservice:
+    image: ${DOCKER_REGISTRY-}progresstrackingservice
+    build:
+      context: .
+      dockerfile: ProgressTrackingService/Dockerfile
+    ports:
+      - "8086:8080"
+    depends_on:
+      - sqlserver
+
+  # ==========================================
+  # 6. API Gateway (Port 8088)
+  # ==========================================
+  fitnessapigateway:
+    image: ${DOCKER_REGISTRY-}fitnessapigateway
+    build:
+      context: .
+      dockerfile: FitnessAPIGateway/Dockerfile
+    ports:
+      - "8088:8080"
+    depends_on:
+      - workoutservice
+      - nutritionservice
+      - authenticationservice # Added dependency
+
+  # ==========================================
+  # 7. Authentication Service (Port 8090) ✅ NEW
+  # ==========================================
+  authenticationservice:
+    image: ${DOCKER_REGISTRY-}authenticationservice
+    build:
+      context: .
+      dockerfile: AuthenticationService/Dockerfile
+    ports:
+      - "8090:8080"
+    depends_on:
+      - sqlserver
+
+volumes:
+  sql_data:
