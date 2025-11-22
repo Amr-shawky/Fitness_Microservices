@@ -2,27 +2,35 @@
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using System.Net.Http; // Required for HttpClientHandler
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Add Ocelot configuration
+// 1. Add Ocelot configuration (loads routes from ocelot.json)
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
 // ---------------------------------------------------------
-// ✅ 1. Register HttpClient (Required to send requests to other services)
+// ✅ 1. Register HttpClient with SSL Bypass (For Development Only)
 // ---------------------------------------------------------
-builder.Services.AddHttpClient();
+// This allows the Gateway to talk to self-signed certs in other containers
+builder.Services.AddHttpClient("InsecureClient")
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        ClientCertificateOptions = ClientCertificateOption.Manual,
+        ServerCertificateCustomValidationCallback =
+            (httpRequestMessage, cert, cetChain, policyErrors) => true // ⚠️ Accept ANY certificate
+    });
 
 // 2. Add Authentication
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
 
-// Check if JWT settings exist (Optional warning for debugging)
+// Warning if JWT settings are missing (prevents silent failures)
 if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
 {
-    Console.WriteLine("⚠️ Warning: JWT settings are missing, Auth might fail.");
+    Console.WriteLine("⚠️ Warning: JWT settings are missing in appsettings.json. Auth might fail.");
 }
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -36,8 +44,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtIssuer,
             ValidAudience = jwtAudience,
-            // Use key from config or a fallback for build safety
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? "temp_key_for_build_success"))
+            // Use key from config or a temp fallback to prevent crash during build
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? "temp_key_for_build_success_only"))
         };
     });
 
@@ -57,13 +65,15 @@ app.UseAuthorization();
 // ---------------------------------------------------------
 
 // Helper function to test connection
+// Now uses IHttpClientFactory to create the insecure client we registered above
 async Task<IResult> TestServiceConnection(IHttpClientFactory factory, string serviceName, string url)
 {
     try
     {
-        var client = factory.CreateClient();
+        // Create the client that ignores SSL errors
+        var client = factory.CreateClient("InsecureClient");
+
         // We try to reach the Swagger UI page as a "Heartbeat" check
-        // (Since we might not know the exact API endpoints yet)
         var response = await client.GetAsync(url);
 
         return Results.Ok(new
@@ -81,6 +91,7 @@ async Task<IResult> TestServiceConnection(IHttpClientFactory factory, string ser
             TargetService = serviceName,
             TargetUrl = url,
             Error = ex.Message,
+            InnerError = ex.InnerException?.Message,
             Message = "❌ Failed! I cannot reach the service."
         }, statusCode: 500);
     }
@@ -89,25 +100,26 @@ async Task<IResult> TestServiceConnection(IHttpClientFactory factory, string ser
 // 👉 Test Workout Service
 app.MapGet("/test/workout", async (IHttpClientFactory factory) =>
 {
-    // Note: We use the Docker Service Name (workoutservice) and internal port (8080)
-    return await TestServiceConnection(factory, "Workout Service", "http://workoutservice:8080/swagger/index.html");
+    // Note: We use the Docker Service Name (workoutservice) and internal HTTPS port (8081)
+    // Because WorkoutService redirects HTTP -> HTTPS
+    return await TestServiceConnection(factory, "Workout Service", "https://workoutservice:8081/swagger/index.html");
 });
 
 // 👉 Test Auth Service
 app.MapGet("/test/auth", async (IHttpClientFactory factory) =>
 {
-    return await TestServiceConnection(factory, "Auth Service", "http://authenticationservice:8080/swagger/index.html");
+    return await TestServiceConnection(factory, "Auth Service", "https://authenticationservice:8081/swagger/index.html");
 });
 
 // 👉 Test Nutrition Service
 app.MapGet("/test/nutrition", async (IHttpClientFactory factory) =>
 {
-    return await TestServiceConnection(factory, "Nutrition Service", "http://nutritionservice:8080/swagger/index.html");
+    return await TestServiceConnection(factory, "Nutrition Service", "https://nutritionservice:8081/swagger/index.html");
 });
 
 // ---------------------------------------------------------
 
-// Use Ocelot (Must be the last middleware)
+// Use Ocelot (Must be the last middleware to handle routed requests)
 await app.UseOcelot();
 
 app.Run();
