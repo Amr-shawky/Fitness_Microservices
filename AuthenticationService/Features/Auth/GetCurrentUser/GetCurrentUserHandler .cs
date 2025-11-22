@@ -6,6 +6,7 @@ using AuthenticationService.Models;
 
 namespace AuthenticationService.Features.Auth.Login
 {
+    // ⚡ Handler for GetCurrentUserQuery with Memory Caching
     public class GetCurrentUserHandler : IRequestHandler<GetCurrentUserQuery, LoginResponse>
     {
         private readonly UserManager<ApplicationUser> _userManager;
