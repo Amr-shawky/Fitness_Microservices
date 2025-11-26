@@ -8,7 +8,10 @@ namespace SmartCoachService
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            // Add services to the container.
             builder.Services.AddAuthorization();
+            builder.Services.AddHttpClient<GeminiService>();
+            builder.Services.AddScoped<GeminiService>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -45,6 +48,22 @@ namespace SmartCoachService
                 return forecast;
             })
             .WithName("GetWeatherForecast")
+            .WithName("GetWeatherForecast")
+            .WithOpenApi();
+
+            app.MapPost("/api/ask", async (GeminiService geminiService, [Microsoft.AspNetCore.Mvc.FromBody] GeminiPart promptWrapper) =>
+            {
+                try
+                {
+                    var response = await geminiService.GenerateContentAsync(promptWrapper.Text);
+                    return Results.Ok(new { Response = response });
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem(ex.Message);
+                }
+            })
+            .WithName("AskGemini")
             .WithOpenApi();
 
             app.Run();

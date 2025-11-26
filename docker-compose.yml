@@ -101,5 +101,20 @@ services:
     depends_on:
       - sqlserver
 
+
+  # ==========================================
+  # 9. Smart Coach Service
+  # ==========================================
+  smartcoachservice:
+    image: ${DOCKER_REGISTRY-}smartcoachservice
+    build:
+      context: .
+      dockerfile: SmartCoachService/Dockerfile
+    ports:
+      - "8094:8080"  # HTTP
+      - "8095:8081"  # HTTPS (New)
+    depends_on:
+      - sqlserver
+
 volumes:
   sql_data:

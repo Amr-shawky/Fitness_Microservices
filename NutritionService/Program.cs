@@ -33,6 +33,7 @@ namespace NutritionService
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddMediatR(typeof(Program).Assembly);
+            builder.Services.AddMemoryCache();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Database Context
