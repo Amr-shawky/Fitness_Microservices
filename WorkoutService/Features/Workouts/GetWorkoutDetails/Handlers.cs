@@ -28,20 +28,18 @@ namespace WorkoutService.Features.Workouts.GetWorkoutDetails
                     Description = w.Description,
                     Category = w.Category,
                     Difficulty = w.Difficulty,
-                    DurationInMinutes = w.DurationInMinutes,
+                    Duration = w.DurationInMinutes,
                     CaloriesBurn = w.CaloriesBurn,
                     IsPremium = w.IsPremium,
                     Rating = w.Rating,
-                    Exercises = w.WorkoutExercises.Select(we => new WorkoutExerciseViewModel
+                    Exercises = w.WorkoutExercises.Select(we => new ExerciseViewModel
                     {
-                        ExerciseId = we.ExerciseId,
+                        Id = we.ExerciseId,
                         Name = we.Exercise.Name,
                         Sets = we.Sets,
                         Reps = we.Reps,
-                        RestTimeInSeconds = we.RestTimeInSeconds,
-                        Order = we.Order,
-                        TargetMuscles = we.Exercise.TargetMuscles,
-                        EquipmentNeeded = we.Exercise.EquipmentNeeded
+                        RestTime = we.RestTimeInSeconds,
+                        Order = we.Order
                     }).OrderBy(e => e.Order).ToList()
                 })
                 .FirstOrDefaultAsync(cancellationToken);
