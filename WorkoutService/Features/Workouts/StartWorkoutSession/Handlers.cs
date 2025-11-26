@@ -24,11 +24,21 @@ namespace WorkoutService.Features.Workouts.StartWorkoutSession
 
         public async Task<RequestResponse<WorkoutSessionViewModel>> Handle(StartWorkoutSessionCommand request, CancellationToken cancellationToken)
         {
-            var workout = await _workoutRepository.GetAll()
-                .Include(w => w.WorkoutExercises)
-                .FirstOrDefaultAsync(w => w.Id == request.WorkoutId, cancellationToken);
+            // Project only the necessary fields: Id and WorkoutExercises (Id, Order)
+            var workoutData = await _workoutRepository.GetAll()
+                .Where(w => w.Id == request.WorkoutId)
+                .Select(w => new
+                {
+                    w.Id,
+                    Exercises = w.WorkoutExercises.Select(we => new
+                    {
+                        we.Id,
+                        we.Order
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (workout == null)
+            if (workoutData == null)
             {
                 return RequestResponse<WorkoutSessionViewModel>.Fail("Workout not found");
             }
@@ -36,14 +46,14 @@ namespace WorkoutService.Features.Workouts.StartWorkoutSession
             var session = new WorkoutSession
             {
                 UserId = Guid.NewGuid(), // Mocking user ID for now
-                WorkoutId = workout.Id,
+                WorkoutId = workoutData.Id,
                 Status = "InProgress",
                 StartedAt = DateTime.UtcNow,
                 PlannedDurationInMinutes = request.Dto.PlannedDuration,
                 Difficulty = request.Dto.Difficulty
             };
 
-            var sessionExercises = workout.WorkoutExercises.Select(e => new WorkoutSessionExercise
+            var sessionExercises = workoutData.Exercises.Select(e => new WorkoutSessionExercise
             {
                 ExerciseId = e.Id,
                 Status = "Pending",
